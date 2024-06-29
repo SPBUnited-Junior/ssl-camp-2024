@@ -64,13 +64,12 @@ class RefStates:
     def halt(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
         """Пауза по команде от судей"""
         for i in range(const.TEAM_ROBOTS_MAX_COUNT):
-            if field.allies[i].is_used():
-                waypoint = wp.Waypoint(
-                    field.allies[i].get_pos(),
-                    field.allies[i].get_angle(),
-                    wp.WType.S_STOP,
-                )
-                waypoints[i] = waypoint
+            waypoint = wp.Waypoint(
+                field.allies[i].get_pos(),
+                field.allies[i].get_angle(),
+                wp.WType.S_STOP,
+            )
+            waypoints[i] = waypoint
 
     def timeout(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
         """Таймаут по команде от судей"""
