@@ -22,7 +22,7 @@ import bridge.processors.waypoint as wp
 from bridge.processors.referee_state_processor import State as GameStates
 from bridge.processors.referee_state_processor import Color as ActiveTeam
 
-from bridge.easy_strategy import easy_run
+from bridge.easy_strategy import easy_run, easy_attacker, easy_goalkeeper
 
 
 class States(Enum):
