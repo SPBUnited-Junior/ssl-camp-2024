@@ -22,6 +22,8 @@ import bridge.processors.waypoint as wp
 from bridge.processors.referee_state_processor import State as GameStates
 from bridge.processors.referee_state_processor import Color as ActiveTeam
 
+from bridge.easy_strategy import easy_run
+
 
 class States(Enum):
     """Класс с глобальными состояниями игры"""
@@ -90,7 +92,7 @@ class Strategy:
 
         print("-" * 32)
         print(self.game_status, "\twe_active:", self.we_active)
-        if self.game_status == GameStates.RUN:  ##########NOTE
+        if self.game_status == GameStates.RUN or 1:  ##########NOTE
             self.run(field, waypoints)
         else:
             if self.game_status == GameStates.TIMEOUT:
@@ -128,37 +130,17 @@ class Strategy:
         return waypoints
 
     def run(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
-        """
-        Определение глобального состояния игры
-        roles - роли роботов, отсортированные по приоритету
-        robot_roles - список соответствия id робота и его роли
-        """
-        idx = 1
-        ball_pos = field.ball.get_pos()
-        robo = field.allies[idx]
-        waypoints[idx] = wp.Waypoint(
-            ball_pos, aux.angle_to_point(robo.get_pos(), ball_pos), wp.WType.S_BALL_KICK
-        )
+        return easy_run(field, waypoints)
 
     def attacker(
         self, field: fld.Field, waypoints: list[wp.Waypoint], attacker_id: int
     ) -> None:
         """Управление атакующим"""
-        ball_pos = field.ball.get_pos()
-        waypoints[attacker_id] = wp.Waypoint(
-            ball_pos,
-            aux.angle_to_point(field.allies[attacker_id].get_pos(), ball_pos),
-            wp.WType.S_BALL_KICK,
-        )
+        return easy_attacker(field, waypoints)
 
     def goalk(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
         """Управление вратарём"""
-        gk_pos: aux.Point = (
-            field.ally_goal.center + field.ally_goal.eye_forw * const.ROBOT_R
-        )
-        gk_angle: float = 0.0
-
-        waypoints[const.GK] = wp.Waypoint(gk_pos, gk_angle, wp.WType.S_IGNOREOBSTACLES)
+        return easy_goalkeeper(field, waypoints)
 
     def prepare_kickoff(self, field: fld.Field, waypoints: list[wp.Waypoint]) -> None:
         """Настройка перед состоянием kickoff по команде судей"""
