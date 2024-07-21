@@ -9,7 +9,7 @@
 
 from enum import Enum
 
-import bridge.processors.auxiliary as aux
+from bridge.auxiliary import aux
 
 
 class WType(Enum):
@@ -24,7 +24,7 @@ class WType(Enum):
     S_BALL_KICK = 3  # Захватить мяч и мгновенно его пнуть
     S_BALL_GRAB = 4  # Захватить мяч не пиная
     S_KEEP_BALL_DISTANCE = 5
-    S_STOP = 6  # STOP
+    S_STOP = 6  # Kostil for stopping
     S_BALL_KICK_UP = 7  # Захватить мяч и мгновенно его пнуть up
     S_VELOCITY = 8  # Разворачиваться с мячом
     # waypoint.pos - скорость; waypoint.angle - угловая скорость
@@ -51,6 +51,4 @@ class Waypoint:
         self.type = wp_type
 
     def __str__(self) -> str:
-        return (
-            f"WP:  {str(self.pos)}; angle = {self.angle:0.2f}; type =  {str(self.type)}"
-        )
+        return f"WP:  {str(self.pos)}; angle = {self.angle:0.2f}; type =  {str(self.type)}"

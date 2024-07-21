@@ -15,17 +15,17 @@ class Color(Enum):
 
 ##################################################
 # GAME SETTING CONSTS
-DIV = "C"
+DIV = "B"
 COLOR = Color.BLUE
 POLARITY = 1  # -1 если ворота синих на +x; 1 если ворота синих на -x
 
 IS_SIMULATOR_USED = True
-IS_DRIBLER_USED = False  # dribler and upper_kick
-SELF_PLAY = True
+IS_DRIBBLER_USED = True  # dribler and upper_kick
+SELF_PLAY = False
 
-GK = 14
-PENALTY_KICKER = 13
-ENEMY_GK = 1
+GK = 5
+PENALTY_KICKER = 0
+ENEMY_GK = 5
 
 CAMERAS_COUNT: int = 4
 MAX_BALLS_IN_CAMERA: int = 64
@@ -66,6 +66,8 @@ for i in range(TEAM_ROBOTS_MAX_COUNT):
         CONTROL_MAPPING[i] = -1
 
 TOPIC_SINK = "control-sink"
+FIELD_TOPIC = "field-topic"
+IMAGE_TOPIC = "image-topic"
 ##################################################
 
 ##################################################
@@ -77,9 +79,9 @@ Ts = 0.05  # s
 # MAX_SPEED_R = 50
 # ACCELERATION = 3
 # BASE_KICKER_VOLTAGE = 7.0
-MAX_SPEED = 1000
+MAX_SPEED = 3000
 MAX_SPEED_R = 30
-SOFT_MAX_SPEED = 750
+SOFT_MAX_SPEED = 1500
 SOFT_MAX_SPEED_R = 16
 ACCELERATION = 3
 BASE_KICKER_VOLTAGE = 7.0
@@ -93,12 +95,12 @@ GK_PEN_KICKOUT_SPEED = 500
 ##################################################
 # GEOMETRY CONSTS
 
-BALL_R = 50
+BALL_R = 22
 ROBOT_R = 100
 GRAVEYARD_POS_X = -10000
 
 
-GOAL_DX = 4000
+GOAL_DX = 4500
 GOAL_DY = 1000
 GOAL_PEN_DX = 1000
 GOAL_PEN_DY = 2000
@@ -109,7 +111,7 @@ if DIV == "C":
     GOAL_PEN_DY = 1350
 
 GK_FORW = 200 + ROBOT_R
-KICK_ALIGN_DIST = 200
+KICK_ALIGN_DIST = 150
 GRAB_ALIGN_DIST = 130
 KICK_ALIGN_DIST_MULT = 1.5
 KICK_ALIGN_ANGLE = 0.07
@@ -120,8 +122,14 @@ BALL_GRABBED_ANGLE = 0.8
 # ROUTE CONSTS
 KEEP_BALL_DIST = 500 + ROBOT_R
 
+# SOME STRATEGY TRASH
+MIN_GOOD_ANGLE = 90
+ROBOT_SPEED = 1.5
+FULL_DELAY = 0.16
+
+
 # VOLTAGES
-VOLTAGE_PASS = 6
+VOLTAGE_PASS = 10
 VOLTAGE_SHOOT = 15
-VOLTAGE_UP = 15
+VOLTAGE_UP = 10
 VOLTAGE_ZERO = min(VOLTAGE_PASS, VOLTAGE_SHOOT, VOLTAGE_UP)

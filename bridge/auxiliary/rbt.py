@@ -5,11 +5,9 @@
 import math
 import typing
 
-import bridge.processors.auxiliary as aux
-import bridge.processors.const as const
-import bridge.processors.entity as entity
-import bridge.processors.tau as tau
-import bridge.processors.waypoint as wp
+import bridge.router.waypoint as wp
+from bridge import const
+from bridge.auxiliary import aux, entity, tau
 
 
 class Robot(entity.Entity):
@@ -45,7 +43,6 @@ class Robot(entity.Entity):
         self.dribbler_speed_ = 0
         self.kicker_charge_enable_ = 1
         self.beep = 0
-        self.role = 0
 
         # v! SIM
         if const.IS_SIMULATOR_USED:
@@ -88,8 +85,9 @@ class Robot(entity.Entity):
         # gains_soft = [10, 0.32, 0, const.SOFT_MAX_SPEED]
         # gains_soft = gains_full
         if const.IS_SIMULATOR_USED:
-            gains_full = [3, 0.35, 0, const.MAX_SPEED]
-            gains_soft = [5, 0.35, 0, const.SOFT_MAX_SPEED]
+            # gains_full = [8, 0.35, 0, const.MAX_SPEED]
+            gains_full = [25, 0.08, 0, const.MAX_SPEED]
+            gains_soft = [25, 0.08, 0, const.SOFT_MAX_SPEED]
             a_gains_full = [2, 0.1, 0.1, const.MAX_SPEED_R]  # 4, 0.1, 0.1
         # a_gains_soft = [4, 0.07, 8, const.SOFT_MAX_SPEED_R]
         a_gains_soft = a_gains_full
@@ -130,9 +128,16 @@ class Robot(entity.Entity):
         self.is_kick_committed = False
 
     def __eq__(self, robo: typing.Any) -> bool:
-        if not isinstance(robo, Robot):
+        try:
+            return self.r_id == robo.r_id and self.color == robo.color
+        except:
             return False
-        return self.r_id == robo.r_id and self.color == robo.color
+
+    def to_entity(self) -> entity.Entity:
+        ent = entity.Entity(self._pos, self._angle, self._radius)
+        ent._vel = self._vel
+        # ent._acc = self._acc
+        return ent
 
     def used(self, a: int) -> None:
         """
@@ -196,6 +201,7 @@ class Robot(entity.Entity):
         self.kicker_charge_enable_ = robot.kicker_charge_enable_
         self.beep = robot.beep
         self.__is_used = robot.is_used()
+        self.last_update_ = robot.last_update_
 
     def clear_fields(self) -> None:
         """
@@ -219,16 +225,13 @@ class Robot(entity.Entity):
         """
 
         commit_scale = 1.2 if self.is_kick_committed else 1
-        is_dist = (
-            self.get_pos() - target.pos
-        ).mag() < const.KICK_ALIGN_DIST * const.KICK_ALIGN_DIST_MULT * commit_scale
+        is_dist = (self.get_pos() - target.pos).mag() < const.KICK_ALIGN_DIST * const.KICK_ALIGN_DIST_MULT * commit_scale
         is_angle = self.is_kick_aligned_by_angle(target.angle)
         is_offset = (
             aux.dist(
                 aux.closest_point_on_line(
                     target.pos,
-                    target.pos
-                    - aux.rotate(aux.RIGHT, target.angle) * const.KICK_ALIGN_DIST,
+                    target.pos - aux.rotate(aux.RIGHT, target.angle) * const.KICK_ALIGN_DIST,
                     self._pos,
                 ),
                 self._pos,
@@ -249,10 +252,7 @@ class Robot(entity.Entity):
         Определить, выровнен ли робот относительно путевой точки target
         """
         commit_scale = 1.2 if self.is_kick_committed else 1
-        return (
-            abs(aux.wind_down_angle(self._angle - angle))
-            < const.KICK_ALIGN_ANGLE * commit_scale
-        )
+        return abs(aux.wind_down_angle(self._angle - angle)) < const.KICK_ALIGN_ANGLE * commit_scale
 
     def update_vel_xyw(self, vel: aux.Point, wvel: float) -> None:
         """
@@ -261,12 +261,8 @@ class Robot(entity.Entity):
         vel - требуемый вектор скорости [мм/с] \\
         wvel - требуемая угловая скорость [рад/с]
         """
-        self.speed_x = self.xx_flp.process(
-            1 / self.k_xx * aux.rotate(vel, -self._angle).x
-        )
-        self.speed_y = self.yy_flp.process(
-            1 / self.k_yy * aux.rotate(vel, -self._angle).y
-        )
+        self.speed_x = self.xx_flp.process(1 / self.k_xx * aux.rotate(vel, -self._angle).x)
+        self.speed_y = self.yy_flp.process(1 / self.k_yy * aux.rotate(vel, -self._angle).y)
 
         # self.speed_x = self.xx_flp.process(1 / self.k_xx * vel.x)
         # self.speed_y = self.yy_flp.process(1 / self.k_yy * vel.y)
@@ -281,14 +277,18 @@ class Robot(entity.Entity):
         vec_speed = math.sqrt(self.speed_x**2 + self.speed_y**2)
         r_speed = abs(self.speed_r)
 
-        if const.IS_SIMULATOR_USED:
-            vec_speed *= (const.MAX_SPEED_R - r_speed) / const.MAX_SPEED_R
-        else:
-            vec_speed *= ((const.MAX_SPEED_R - r_speed) / const.MAX_SPEED_R) ** 4
+        if not const.IS_SIMULATOR_USED:
+            vec_speed *= ((const.MAX_SPEED_R - r_speed) / const.MAX_SPEED_R) ** 2
 
         ang = math.atan2(self.speed_y, self.speed_x)
         self.speed_x = vec_speed * math.cos(ang)
         self.speed_y = vec_speed * math.sin(ang)
+
+    def clamp_motors(self) -> None:
+        """
+        Ограничить управляющее воздействие
+        """
+        # TODO
 
     def __str__(self) -> str:
         return (
