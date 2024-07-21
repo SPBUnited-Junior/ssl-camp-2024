@@ -9,58 +9,6 @@ from typing import Optional
 from bridge import const
 
 
-class Graph:
-    """
-    Класс для работы с графами
-    """
-
-    def __init__(self, num_vertices: int) -> None:
-        """
-        Конструктор
-
-        Аллоцирует память под граф с num_vertices вершинами
-        """
-        self.num_vertices = num_vertices
-        self.graph = [[0] * num_vertices for _ in range(num_vertices)]
-
-    def add_edge(self, from_vertex: int, to_vertex: int, weight: int) -> None:
-        """
-        Добавить ребро графу
-        """
-        self.graph[from_vertex][to_vertex] = weight
-        self.graph[to_vertex][from_vertex] = weight
-
-    def dijkstra(self, start_vertex: int) -> list[float]:
-        """
-        Найти кратчайший путь в графе используя алгоритм Дейкстры
-        """
-        distances = [float("inf")] * self.num_vertices
-        distances[start_vertex] = 0
-        visited = [False] * self.num_vertices
-
-        for _ in range(self.num_vertices):
-            min_distance = float("inf")
-            min_vertex = -1
-
-            for v in range(self.num_vertices):
-                if not visited[v] and distances[v] < min_distance:
-                    min_distance = distances[v]
-                    min_vertex = v
-
-            visited[min_vertex] = True
-
-            for v in range(self.num_vertices):
-                if (
-                    not visited[v]
-                    and self.graph[min_vertex][v]
-                    and distances[min_vertex] != float("inf")
-                    and distances[min_vertex] + self.graph[min_vertex][v] < distances[v]
-                ):
-                    distances[v] = distances[min_vertex] + self.graph[min_vertex][v]
-
-        return distances
-
-
 class Point:
     """
     Класс, описывающий точку (вектор)
@@ -131,18 +79,6 @@ def dist2line(p1: Point, p2: Point, p: Point) -> float:
     Рассчитать расстояние от точки p до прямой, образованной точками p1 и p2
     """
     return abs(vec_mult((p2 - p1).unity(), p - p1))
-
-
-# def line_poly_intersect(p1: Point, p2: Point, points: list[Point]) -> bool:
-#     """
-#     Определить, пересекает ли линия p1-p2 полигон points
-#     """
-#     vec = p2 - p1
-#     old_sign = sign(vec_mult(vec, points[0] - p1))
-#     for p in points:
-#         if old_sign != sign(vec_mult(vec, p - p1)):
-#             return True
-#     return False
 
 
 def segment_poly_intersect(p1: Point, p2: Point, points: list[Point]) -> typing.Optional[Point]:
@@ -383,18 +319,9 @@ def sign(num: float) -> float:
     return num / abs(num)
 
 
-def det(a: float, b: float, c: float, d: float) -> float:
-    """
-    Получить определитель матрицы:
-    |a b|
-    |c d|
-    """
-    return a * d - b * c
-
-
 def nearest_point_on_poly(p: Point, poly: list[Point]) -> Point:
     """
-    TODO
+    Получить ближайшую точку многоугольника poly к точке p
     """
     min_ = 10e10
     ans = Point(0, 0)
@@ -461,7 +388,7 @@ def cosine_theorem(a: float, b: float, angle: float) -> float:
 
 
 def line_circle_intersect(x1: Point, x2: Point, c: Point, radius: float) -> Optional[list[Point]]:
-    """TODO"""
+    """Получить пересечение прямой и окружности"""
     h = closest_point_on_line(x1, x2, c, "L")
     if radius < dist(c, h):
         return None

@@ -61,6 +61,7 @@ class StateMachine:
         for state in State:
             self.add_transition(state, State.HALT, Command.HALT)
             self.add_transition(state, State.STOP, Command.STOP)
+            self.add_transition(state, State.TIMEOUT, Command.TIMEOUT)
 
         self.add_transition(State.TIMEOUT, State.STOP, Command.STOP)
 
@@ -69,7 +70,6 @@ class StateMachine:
         self.add_transition(State.STOP, State.PREPARE_PENALTY, Command.PREPARE_PENALTY)
         self.add_transition(State.STOP, State.FREE_KICK, Command.FREE_KICK)
         self.add_transition(State.STOP, State.RUN, Command.FORCE_START)
-        self.add_transition(State.STOP, State.TIMEOUT, Command.TIMEOUT)
 
         self.add_transition(State.PREPARE_KICKOFF, State.KICKOFF, Command.NORMAL_START)
 
@@ -88,7 +88,9 @@ class StateMachine:
 
         self.add_transition(State.RUN, State.STOP, Command.STOP)
 
-    def add_transition(self, from_state: State, to_state: State, transition: Command) -> None:
+    def add_transition(
+        self, from_state: State, to_state: State, transition: Command
+    ) -> None:
         """Add new transition from state"""
         if from_state not in self.__transitions:
             self.__transitions[from_state] = {}
@@ -103,11 +105,17 @@ class StateMachine:
         if transition in self.__transitions[self.__state]:
             self.__state = self.__transitions[self.__state][transition]
         else:
-            raise ValueError(f"No transition '{transition}' from state '{self.__state}'")
+            raise ValueError(
+                f"No transition '{transition}' from state '{self.__state}'"
+            )
 
     def get_possible_transitions(self) -> list:
         """Returns a list with all possible transitions"""
-        return list(self.__transitions[self.__state].keys()) if self.__state in self.__transitions else []
+        return (
+            list(self.__transitions[self.__state].keys())
+            if self.__state in self.__transitions
+            else []
+        )
 
     def active_team(self, num: int) -> None:
         """Set active team"""

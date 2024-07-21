@@ -15,17 +15,17 @@ class Color(Enum):
 
 ##################################################
 # GAME SETTING CONSTS
-DIV = "B"
+DIV = "C"
 COLOR = Color.BLUE
 POLARITY = 1  # -1 если ворота синих на +x; 1 если ворота синих на -x
 
 IS_SIMULATOR_USED = True
-IS_DRIBBLER_USED = True  # dribler and upper_kick
+IS_DRIBBLER_USED = True  # dribbler and upper_kick
 SELF_PLAY = False
 
-GK = 5
-PENALTY_KICKER = 0
-ENEMY_GK = 5
+GK = 0
+PENALTY_KICKER = 1
+ENEMY_GK = 0
 
 CAMERAS_COUNT: int = 4
 MAX_BALLS_IN_CAMERA: int = 64
@@ -79,9 +79,9 @@ Ts = 0.05  # s
 # MAX_SPEED_R = 50
 # ACCELERATION = 3
 # BASE_KICKER_VOLTAGE = 7.0
-MAX_SPEED = 3000
+MAX_SPEED = 1000
 MAX_SPEED_R = 30
-SOFT_MAX_SPEED = 1500
+SOFT_MAX_SPEED = 500
 SOFT_MAX_SPEED_R = 16
 ACCELERATION = 3
 BASE_KICKER_VOLTAGE = 7.0
@@ -105,10 +105,10 @@ GOAL_DY = 1000
 GOAL_PEN_DX = 1000
 GOAL_PEN_DY = 2000
 if DIV == "C":
-    GOAL_DX = 2250
+    GOAL_DX = 1500
     GOAL_DY = 800
     GOAL_PEN_DX = 500
-    GOAL_PEN_DY = 1350
+    GOAL_PEN_DY = 1000
 
 GK_FORW = 200 + ROBOT_R
 KICK_ALIGN_DIST = 150
